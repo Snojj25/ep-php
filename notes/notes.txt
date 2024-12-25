@@ -1,0 +1,28 @@
+
+
+// Run docker image
+
+docker run -d \
+  --name ecommerce-sql \
+  -e MYSQL_ROOT_PASSWORD=password \
+  -e MYSQL_DATABASE=ecommerce \
+  -e MYSQL_USER=php-server \
+  -e MYSQL_PASSWORD=password \
+  -p 3306:3306 \
+  mysql:latest
+
+
+docker cp /home/snojj/NetBeansProjects/ep-seminarska/sql/ecommerce.sql ecommerce-sql:/ecommerce.sql
+
+# Execute the file inside container  
+docker exec ecommerce-sql mysql -uroot -ppassword ecommerce -e "source /ecommerce.sql"
+
+
+docker exec -it ecommerce-sql mysql -uroot -ppassword 
+
+# Once inside MySQL, list databases:  
+SHOW DATABASES;  
+
+USE ecommerce;
+
+SHOW TABLES;

@@ -1,0 +1,14 @@
+# Enable rewrite engine  
+RewriteEngine On  
+
+# Ensure proper base path  
+RewriteBase /  
+
+# Force HTTPS for secure areas  
+RewriteCond %{HTTPS} off  
+RewriteCond %{REQUEST_URI} ^/(admin|seller|auth) [NC]  
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]  
+
+# Allow both HTTP and HTTPS for public areas  
+#RewriteCond %{REQUEST_URI} !^/(admin|seller|auth) [NC]  
+#RewriteRule ^(.*)$ - [L]  
