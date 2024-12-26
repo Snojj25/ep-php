@@ -27,11 +27,23 @@ CREATE TABLE products (
     name VARCHAR(100) NOT NULL,
     description TEXT,
     price DECIMAL(10,2) NOT NULL,
+    stock INT NOT NULL DEFAULT 0,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+CREATE TABLE product_images (  
+    id INT PRIMARY KEY AUTO_INCREMENT,  
+    product_id INT NOT NULL,  
+    file_name VARCHAR(255) NOT NULL,  
+    file_path VARCHAR(255) NOT NULL,  
+    is_primary BOOLEAN DEFAULT FALSE,  
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE  
+);
 
 -- Orders table
 CREATE TABLE orders (

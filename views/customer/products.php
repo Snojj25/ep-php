@@ -7,61 +7,55 @@ require_once 'views/layouts/navbar.php';
 <main class="max-w-7xl mx-auto px-4 py-12">  
     <h1 class="text-center text-3xl font-bold text-gray-900 mb-12">Available Products</h1>  
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">  
-        <?php foreach ($products as $product): ?>  
-            <div class="bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-blue-500 transition-colors duration-200">  
-                <div class="p-6">  
-                    <!-- Product Header -->  
-                    <div class="text-center mb-6">  
-                        <h2 class="text-2xl font-semibold text-gray-900 mb-2">  
-                            <?= htmlspecialchars($product['name']) ?>  
-                        </h2>  
-                        <div class="h-px bg-gray-200 my-4"></div>  
-                    </div>  
+    <div class="container mx-auto px-4 py-8">  
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">  
+            <?php foreach ($data['products'] as $product): ?>  
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">  
+                    <!-- Product Images -->  
+                    <?php if (!empty($data['productImages'][$product['id']])): ?>  
+                        <div class="relative h-64">  
+                            <!-- Show primary image first -->  
+                            <img src="<?= htmlspecialchars($data['productImages'][$product['id']][0]['file_path']) ?>"  
+                                 alt="<?= htmlspecialchars($product['name']) ?>"  
+                                 class="w-full h-full object-cover">  
 
-                    <!-- Product Details -->  
-                    <div class="space-y-4">  
-                        <p class="text-gray-600 text-center leading-relaxed">  
+                            <!-- If there are multiple images, show indicator -->  
+                            <?php if (count($data['productImages'][$product['id']]) > 1): ?>  
+                                <span class="absolute bottom-2 right-2 bg-gray-800 text-white px-2 py-1 rounded-full text-xs">  
+                                    +<?= count($data['productImages'][$product['id']]) - 1 ?> more  
+                                </span>  
+                            <?php endif; ?>  
+                        </div>  
+                    <?php else: ?>  
+                        <!-- Placeholder for products without images -->  
+                        <div class="h-64 bg-gray-100 flex items-center justify-center">  
+                            <span class="text-gray-400">No image available</span>  
+                        </div>  
+                    <?php endif; ?>  
+
+                    <!-- Product Information -->  
+                    <div class="p-4">  
+                        <h3 class="text-lg font-semibold mb-2">  
+                            <?= htmlspecialchars($product['name']) ?>  
+                        </h3>  
+                        <p class="text-gray-600 mb-4 line-clamp-2">  
                             <?= htmlspecialchars($product['description']) ?>  
                         </p>  
-
-                        <div class="text-center">  
-                            <span class="text-3xl font-bold text-gray-900">  
-                                $<?= number_format($product['price'], 2) ?>  
+                        <div class="flex justify-between items-center">  
+                            <span class="text-lg font-bold">  
+                                €<?= number_format($product['price'], 2) ?>  
                             </span>  
-                        </div>  
-                    </div>  
-
-                    <!-- Add to Cart Form -->  
-                    <form action="index.php?controller=customer&action=addToCart"   
-                          method="POST"   
-                          class="mt-8">  
-                        <input type="hidden" name="product_id" value="<?= $product['id'] ?>">  
-
-                        <div class="flex flex-col items-center space-y-4">  
-                            <div class="w-full max-w-xs">  
-                                <label for="quantity-<?= $product['id'] ?>"   
-                                       class="block text-sm font-medium text-gray-700 mb-1 text-center">  
-                                    Quantity  
-                                </label>  
-                                <input type="number"   
-                                       id="quantity-<?= $product['id'] ?>"  
-                                       name="quantity"   
-                                       value="1"   
-                                       min="1"  
-                                       class="block w-full rounded-md border-gray-300 text-center focus:border-blue-500 focus:ring-blue-500">  
-                            </div>  
-
-                            <button type="submit"   
-                                    class="w-full max-w-xs bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">  
+                            <button onclick="addToCart(<?= $product['id'] ?>)"   
+                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">  
                                 Add to Cart  
                             </button>  
                         </div>  
-                    </form>  
+                    </div>  
                 </div>  
-            </div>  
-        <?php endforeach; ?>  
+            <?php endforeach; ?>  
+        </div>  
     </div>  
+
 </main>  
 
 

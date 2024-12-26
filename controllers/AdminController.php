@@ -67,24 +67,70 @@ class AdminController {
         require 'views/admin/sellers.php';
     }
 
+    // AdminController.php  
     public function createSeller($params) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            try {
+                // Verify CSRF token  
+                if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+                    throw new Exception("Invalid security token");
+                }
 
-            $data = [
-                'first_name' => cleanInput($params["first_name"]),
-                'last_name' => cleanInput($params["last_name"]),
-                'email' => cleanInput($params["email"]),
-                'password' => cleanInput($params["password"])
-            ];
+                $data = [
+                    'first_name' => cleanInput($params["first_name"]),
+                    'last_name' => cleanInput($params["last_name"]),
+                    'email' => cleanInput($params["email"]),
+                    'password' => $_POST['password'] ?? '',
+                    'confirm_password' => $_POST['confirm_password'] ?? '',
+                    'address' => cleanInput($params["address"]),
+                    'postal_code' => cleanInput($params["postal_code"]),
+                    'city' => cleanInput($params["city"]),
+                    'role' => 'seller',
+                ];
 
-            if ($this->userModel->createSeller($data)) {
-                $_SESSION['success'] = "Seller created successfully";
-            } else {
-                $_SESSION['error'] = "Failed to create seller";
+                // Validate required fields  
+                $required_fields = ['first_name', 'last_name', 'email', 'password', 'confirm_password'];
+                foreach ($required_fields as $field) {
+                    if (empty($data[$field])) {
+                        throw new Exception("All required fields must be filled out");
+                    }
+                }
+
+                // Validate email format  
+                if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+                    throw new Exception("Invalid email format");
+                }
+
+                // Validate password match  
+                if ($data['password'] !== $data['confirm_password']) {
+                    throw new Exception("Passwords do not match");
+                }
+
+                // Check if email already exists  
+                if ($this->userModel->emailExists($data['email'])) {
+                    throw new Exception("Email already registered");
+                }
+
+                // Create the seller  
+                if ($this->userModel->create($data)) {
+                    $_SESSION['success'] = "Seller created successfully";
+                    header('Location: index.php?controller=admin&action=manageSellers');
+                    exit();
+                } else {
+                    throw new Exception("Failed to create seller");
+                }
+            } catch (Exception $e) {
+                $_SESSION['error'] = $e->getMessage();
+                $_SESSION['form_data'] = $data;
+                header('Location: index.php?controller=admin&action=createSeller');
+                exit();
             }
-            header('Location: index.php?controller=admin&action=manageSellers');
-            exit();
         }
+
+        // Generate CSRF token  
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
+        // Load the view  
         require 'views/admin/create_seller.php';
     }
 

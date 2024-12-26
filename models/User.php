@@ -24,21 +24,35 @@ class User {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function emailExists($email) {
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM users WHERE email = :email");
+        $stmt->execute([':email' => $email]);
+        return $stmt->fetchColumn() > 0;
+    }
+
     public function create($data) {
-        $sql = "INSERT INTO users (first_name, last_name, email, password, role, is_active)   
-            VALUES (:first_name, :last_name, :email, :password, :role, 1)";
+        $sql = "INSERT INTO users (first_name, last_name, email, password, role, address, postal_code, city, is_active)   
+            VALUES (:first_name, :last_name, :email, :password, :role, :address, :postal_code, :city,  1)";
         $stmt = $this->db->prepare($sql);
 
         // Hash the password  
         $hashedPass = password_hash($data['password'], PASSWORD_DEFAULT);
 
-        $stmt->execute([
-            'first_name' => $data['first_name'] ?? '',
-            'last_name' => $data['last_name'] ?? '',
-            'email' => $data['email'],
-            'password' => $hashedPass,
-            'role' => $data['role']
+        $result = $stmt->execute([
+            ':first_name' => $data['first_name'] ?? '',
+            ':last_name' => $data['last_name'] ?? '',
+            ':email' => $data['email'],
+            ':password' => $hashedPass,
+            ':role' => $data['role'],
+            ':address' => $data['address'] ?? '',
+            ':postal_code' => $data['postal_code'] ?? '',
+            ':city' => $data['city'],
         ]);
+
+        if ($result) {
+            return true;
+        }
+        return false;
     }
 
     public function updateUser($id, $data) {
@@ -101,22 +115,60 @@ class User {
         }
     }
 
-    public function toggleActive($userId) {  
-    // First, get the current is_active value from database  
-    $statement = $this->db->prepare("SELECT is_active FROM users WHERE id = :id");  
-    $statement->execute([':id' => $userId]);  
-    $user = $statement->fetch(PDO::FETCH_ASSOC);  
-    
-    if (!$user) {  
-        return false; // User not found  
-    }  
-    
-    // Flip the is_active value (0 to 1 or 1 to 0)  
-    $active = $user["is_active"] ? 0 : 1;  
+    public function toggleActive($userId) {
+        // First, get the current is_active value from database  
+        $statement = $this->db->prepare("SELECT is_active FROM users WHERE id = :id");
+        $statement->execute([':id' => $userId]);
+        $user = $statement->fetch(PDO::FETCH_ASSOC);
 
-    // Prepare and execute update query  
-    $sql = "UPDATE users SET is_active = :active WHERE id = :id";  
-    $stmt = $this->db->prepare($sql);  
-    return $stmt->execute([':active' => $active, ':id' => $userId]);  
-}
+        if (!$user) {
+            return false; // User not found  
+        }
+
+        // Flip the is_active value (0 to 1 or 1 to 0)  
+        $active = $user["is_active"] ? 0 : 1;
+
+        // Prepare and execute update query  
+        $sql = "UPDATE users SET is_active = :active WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([':active' => $active, ':id' => $userId]);
+    }
+
+    public function getCustomersCount() {
+        try {
+            $sql = "SELECT COUNT(*) as count   
+                    FROM users   
+                    WHERE role = 'customer'   
+                    AND deleted_at IS NULL";  // Assuming soft deletes  
+
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return (int) $result['count'];
+        } catch (PDOException $e) {
+            // Log error  
+            error_log("Error getting customers count: " . $e->getMessage());
+            return 0;
+        }
+    }
+    
+    public function getAllCustomers() {
+        try {  
+            $sql = "SELECT id, first_name, last_name, email, address, city, postal_code,   
+                           phone, created_at
+                    FROM users   
+                    WHERE role = 'customer'   
+                    AND deleted_at IS NULL   
+                    ORDER BY created_at DESC";  
+            
+            $stmt = $this->db->prepare($sql);  
+            $stmt->execute();  
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);  
+        } catch (PDOException $e) {  
+            error_log("Error getting all customers: " . $e->getMessage());  
+            return [];  
+        }  
+    }  
 }
