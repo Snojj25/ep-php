@@ -71,7 +71,7 @@ require_once 'views/layouts/navbar.php';
     </div>  
 
     <!-- Quick Actions -->  
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">  
+    <div class="grid grid-cols-2 md:grid-cols-2 gap-6">  
 
         <!-- Quick Links --> 
         <div class="bg-white rounded-lg shadow">  
@@ -87,13 +87,13 @@ require_once 'views/layouts/navbar.php';
                             <span class="ml-3">Add New Product</span>  
                         </div>  
                     </a>  
-                    <a href="index.php?controller=seller&action=manageCustomers"   
+                    <a href="index.php?controller=seller&action=manageProducts"   
                        class="block p-4 border rounded hover:bg-gray-50">  
                         <div class="flex items-center">  
                             <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">  
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>  
                             </svg>  
-                            <span class="ml-3">Manage Customers</span>  
+                            <span class="ml-3">Manage Products</span>  
                         </div>  
                     </a>  
                 </div>  
@@ -102,7 +102,18 @@ require_once 'views/layouts/navbar.php';
 
         <!-- Recent Orders -->
         <div class="bg-white rounded-lg shadow p-6">  
-            <h2 class="text-xl font-semibold mb-4">Recent Orders</h2>  
+
+            <div class="grid grid-cols-2 md:grid-cols-2 gap-6">
+                <h2 class="text-xl font-semibold mb-4">Recent Orders</h2>  
+
+                <a href="index.php?controller=seller&action=manageOrders"   
+                   class="mt-4 inline-block text-blue-600 hover:text-blue-800">  
+                    View all orders →  
+                </a>  
+            </div>
+
+
+
             <div class="space-y-4">  
                 <?php foreach ($this->orderModel->getRecent(5) as $order): ?>  
                     <div class="flex items-center justify-between border-b pb-4">  
@@ -116,10 +127,9 @@ require_once 'views/layouts/navbar.php';
                     </div>  
                 <?php endforeach; ?>  
             </div>  
-            <a href="index.php?controller=seller&action=manageOrders"   
-               class="mt-4 inline-block text-blue-600 hover:text-blue-800">  
-                View all orders →  
-            </a>  
+
+
+
 
         </div>  
 

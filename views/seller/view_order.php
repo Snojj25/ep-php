@@ -5,6 +5,8 @@ require_once 'views/layouts/navbar.php';
 
 
 <div class="container mx-auto px-4 py-8">  
+    
+    
     <!-- Header -->  
     <div class="flex justify-between items-center mb-6">  
         <h1 class="text-2xl font-bold">Order #<?= htmlspecialchars($order['id']) ?></h1>  
@@ -32,7 +34,7 @@ require_once 'views/layouts/navbar.php';
                 </div>  
                 <div class="flex justify-between">  
                     <span class="text-gray-600">Total Amount:</span>  
-                    <span class="font-semibold">€<?= number_format($order['total'], 2) ?></span>  
+                    <span class="font-semibold">€<?= number_format($order['total_amount'], 2) ?></span>  
                 </div>  
             </div>  
         </div>  
@@ -41,25 +43,21 @@ require_once 'views/layouts/navbar.php';
         <div class="bg-white rounded-lg shadow p-6">  
             <h2 class="text-lg font-semibold mb-4">Customer Information</h2>  
             <div class="space-y-3">  
-                <div>  
-                    <span class="text-gray-600">Name:</span>  
-                    <span class="ml-2"><?= htmlspecialchars($customer['first_name'] . ' ' . $customer['last_name']) ?></span>  
-                </div>  
-                <div>  
-                    <span class="text-gray-600">Email:</span>  
-                    <span class="ml-2"><?= htmlspecialchars($customer['email']) ?></span>  
-                </div>  
+                 <div>  
+                    <span class="text-gray-600">Phone:</span>  
+                    <span class="ml-2"><?= htmlspecialchars($order['phone']) ?></span>  
+                </div> 
                 <div>  
                     <span class="text-gray-600">Address:</span>  
-                    <span class="ml-2"><?= htmlspecialchars($customer['address']) ?></span>  
+                    <span class="ml-2"><?= htmlspecialchars($order['shipping_address']) ?></span>  
                 </div>  
                 <div>  
                     <span class="text-gray-600">City:</span>  
-                    <span class="ml-2"><?= htmlspecialchars($customer['city']) ?></span>  
+                    <span class="ml-2"><?= htmlspecialchars($order['city']) ?></span>  
                 </div>  
                 <div>  
                     <span class="text-gray-600">Postal Code:</span>  
-                    <span class="ml-2"><?= htmlspecialchars($customer['postal_code']) ?></span>  
+                    <span class="ml-2"><?= htmlspecialchars($order['postal_code']) ?></span>  
                 </div>  
             </div>  
         </div>  
@@ -100,7 +98,7 @@ require_once 'views/layouts/navbar.php';
             <tfoot class="bg-gray-50">  
                 <tr>  
                     <td colspan="3" class="px-6 py-4 text-right font-medium">Total:</td>  
-                    <td class="px-6 py-4 text-right font-bold">€<?= number_format($order['total'], 2) ?></td>  
+                    <td class="px-6 py-4 text-right font-bold">€<?= number_format($order['total_amount'], 2) ?></td>  
                 </tr>  
             </tfoot>  
         </table>  
@@ -132,7 +130,7 @@ require_once 'views/layouts/navbar.php';
         <div class="mt-6 flex justify-end">  
             <form action="index.php?controller=seller&action=updateOrderStatus" method="POST" class="inline">  
                 <input type="hidden" name="order_id" value="<?= $order['id'] ?>">  
-                <input type="hidden" name="status" value="stornated">  
+                <input type="hidden" name="status" value="storno">  
                 <button type="submit"   
                         class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"  
                         onclick="return confirm('Are you sure you want to stornate this order?')">  

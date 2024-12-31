@@ -6,9 +6,14 @@ require_once 'views/layouts/navbar.php';
 
 <div class="container mx-auto px-4 py-8">  
     <!-- Header -->  
-    <div class="mb-6">  
+    <div class="flex justify-between items-center mb-6">  
         <h1 class="text-2xl font-bold">Manage Orders</h1>  
-    </div>  
+        <a href="index.php?controller=seller&action=index"   
+           class="text-gray-600 hover:text-gray-900">  
+            ← Back to Dashboard  
+        </a>  
+    </div> 
+    
 
     <!-- Messages -->  
     <?php if (isset($_SESSION['success'])): ?>  
@@ -31,17 +36,18 @@ require_once 'views/layouts/navbar.php';
                     <th class="py-3 px-6 text-center">Actions</th>  
                 </tr>  
             </thead>  
+
             <tbody class="text-gray-600 text-sm font-light">  
-                <?php foreach ($pendingOrders as $order): ?>  
+                <?php foreach ($allOrders as $order): ?>  
                     <tr class="border-b border-gray-200 hover:bg-gray-100">  
                         <td class="py-3 px-6 text-left">  
-                            #<?= htmlspecialchars($order['id']) ?>  
+                            #<?= htmlspecialchars($order['user_id']) ?>  
                         </td>  
                         <td class="py-3 px-6 text-left">  
-                            <?= htmlspecialchars($order['customer_name']) ?>  
+                            <?= htmlspecialchars($order['first_name'] . " " .  $order['last_name']) ?>  
                         </td>  
                         <td class="py-3 px-6 text-right">  
-                            €<?= number_format($order['total'], 2) ?>  
+                            €<?= number_format($order['total_amount'], 2) ?>  
                         </td>  
                         <td class="py-3 px-6 text-center">  
                             <span class="<?= getStatusClass($order['status']) ?> py-1 px-3 rounded-full text-xs">  

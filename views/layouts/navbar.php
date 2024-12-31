@@ -35,7 +35,7 @@ function isActive($controller, $action) {
                     <?php endif; ?>  
                 </a>  
 
-                <?php if (isset($_SESSION['user_id'])): ?>  
+                <?php if (isset($_SESSION['user']['id'])): ?>  
                     <div class="relative group">  
                         <button class="nav-link nav-link-default inline-flex items-center">  
                             <span>Account</span>  
@@ -51,7 +51,7 @@ function isActive($controller, $action) {
                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">  
                                     My Orders  
                                 </a>  
-                                <a href="index.php?controller=customer&action=profile"   
+                                <a href="index.php?controller=user&action=profile"   
                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">  
                                     Profile  
                                 </a>  
@@ -62,7 +62,8 @@ function isActive($controller, $action) {
                             </div>  
                         </div>  
                     </div>  
-                <?php else: ?>  
+                
+                <?php else: ?>     
                     <a href="index.php?controller=auth&action=login"   
                        class="nav-link nav-link-default">  
                         Login  
@@ -97,7 +98,7 @@ function isActive($controller, $action) {
                 Cart  
             </a>  
             
-            <?php if (isset($_SESSION['user_id'])): ?>  
+            <?php if (isset($_SESSION['user']['id'])): ?>  
                 <a href="index.php?controller=customer&action=orderHistory"   
                    class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50">  
                     My Orders  

@@ -12,19 +12,14 @@ require_once 'views/layouts/navbar.php';
             <?php foreach ($data['products'] as $product): ?>  
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">  
                     <!-- Product Images -->  
-                    <?php if (!empty($data['productImages'][$product['id']])): ?>  
+                    <?php if ($data['productImages'] && $data['productImages'][$product['id']] != null): ?>  
                         <div class="relative h-64">  
                             <!-- Show primary image first -->  
-                            <img src="<?= htmlspecialchars($data['productImages'][$product['id']][0]['file_path']) ?>"  
+                            <img src="<?= htmlspecialchars($data['productImages'][$product['id']]['file_path']) ?>"  
                                  alt="<?= htmlspecialchars($product['name']) ?>"  
                                  class="w-full h-full object-cover">  
 
-                            <!-- If there are multiple images, show indicator -->  
-                            <?php if (count($data['productImages'][$product['id']]) > 1): ?>  
-                                <span class="absolute bottom-2 right-2 bg-gray-800 text-white px-2 py-1 rounded-full text-xs">  
-                                    +<?= count($data['productImages'][$product['id']]) - 1 ?> more  
-                                </span>  
-                            <?php endif; ?>  
+                           
                         </div>  
                     <?php else: ?>  
                         <!-- Placeholder for products without images -->  
@@ -45,10 +40,33 @@ require_once 'views/layouts/navbar.php';
                             <span class="text-lg font-bold">  
                                 €<?= number_format($product['price'], 2) ?>  
                             </span>  
-                            <button onclick="addToCart(<?= $product['id'] ?>)"   
-                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">  
-                                Add to Cart  
-                            </button>  
+                            <form action="index.php?controller=customer&action=addToCart"   
+                                  method="POST"   
+                                  class="mt-8">  
+                                <input type="hidden" name="product_id" value="<?= $product['id'] ?>">  
+                                <div class="flex flex-col items-center space-y-4">  
+                                    <div class="w-full max-w-xs">  
+                                        <label for="quantity-<?= $product['id'] ?>"   
+                                               class="block text-sm font-medium text-gray-700 mb-1 text-center">  
+                                            Quantity  
+                                        </label>  
+                                        <input type="number"   
+                                               id="quantity-<?= $product['id'] ?>"  
+                                               name="quantity"   
+                                               value="1"   
+                                               min="1"  
+                                               class="block w-full rounded-md border-gray-300 text-center focus:border-blue-500 focus:ring-blue-500">  
+                                    </div>  
+                                    <button type="submit"   
+                                            class="w-full max-w-xs bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">  
+                                        Add to Cart  
+                                    </button>  
+                                </div>  
+                            </form>  
+        <!--                            <button onclick="addToCart(<?= $product['id'] ?>)"   
+                                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">  
+                                        Add to Cart  
+                                    </button>  -->
                         </div>  
                     </div>  
                 </div>  

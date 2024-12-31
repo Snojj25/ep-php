@@ -18,7 +18,7 @@ var_dump($_SESSION['errors']);
 
         <!-- Error Messages -->  
         <?php if (isset($_SESSION['errors'])): ?>  
-            
+
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">  
                 <ul class="list-disc list-inside">  
                     <?php foreach ($_SESSION['errors'] as $error): ?>  
@@ -92,31 +92,31 @@ var_dump($_SESSION['errors']);
                            required>  
                 </div>  
             </div>  
-            
-           
+
+
             <!-- Product Images -->  
             <div class="mb-6">  
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="images">  
-                    Product Images (Max 5) *  
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="pimage">  
+                    Product Image  
                 </label>  
                 <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">  
                     <div class="space-y-1 text-center">  
                         <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">  
-                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"   
-                                  stroke-width="2"   
-                                  stroke-linecap="round"   
-                                  stroke-linejoin="round" />  
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"   
+                              stroke-width="2"   
+                              stroke-linecap="round"   
+                              stroke-linejoin="round" />  
                         </svg>  
                         <div class="flex text-sm text-gray-600">  
-                            <label for="images" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">  
+                            <label for="pimage" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">  
                                 <span>Upload files</span>  
-                                <input id="images"   
-                                       name="images[]"   
+                                <input id="pimage"   
+                                       name="pimage"   
                                        type="file"   
                                        class="sr-only"  
-                                       accept="image/*"  
-                                       multiple  
+                                       accept="image/*" 
                                        >  
+                                
                             </label>  
                             <p class="pl-1">or drag and drop</p>  
                         </div>  
@@ -143,28 +143,28 @@ var_dump($_SESSION['errors']);
 </div>  
 
 <!-- Preview Images Script -->  
-<script>  
-document.getElementById('images').addEventListener('change', function(event) {  
-    // Remove any existing preview  
-    const existingPreview = document.getElementById('image-preview');  
-    if (existingPreview) {  
-        existingPreview.remove();  
-    }  
+<script>
+    document.getElementById('pimage').addEventListener('change', function (event) {
+        // Remove any existing preview  
+        const existingPreview = document.getElementById('image-preview');
+        if (existingPreview) {
+            existingPreview.remove();
+        }
 
-    // Create preview container  
-    const previewContainer = document.createElement('div');  
-    previewContainer.id = 'image-preview';  
-    previewContainer.className = 'grid grid-cols-2 md:grid-cols-3 gap-4 mt-4';  
+        // Create preview container  
+        const previewContainer = document.createElement('div');
+        previewContainer.id = 'image-preview';
+        previewContainer.className = 'grid grid-cols-2 md:grid-cols-3 gap-4 mt-4';
 
-    // Preview each selected file  
-    for (const file of event.target.files) {  
-        if (file) {  
-            const reader = new FileReader();  
-            const preview = document.createElement('div');  
-            preview.className = 'relative';  
+        // Preview each selected file  
+        for (const file of event.target.files) {
+            if (file) {
+                const reader = new FileReader();
+                const preview = document.createElement('div');
+                preview.className = 'relative';
 
-            reader.onload = function(e) {  
-                preview.innerHTML = `  
+                reader.onload = function (e) {
+                    preview.innerHTML = `  
                     <img src="${e.target.result}" alt="Preview" class="w-full h-32 object-cover rounded">  
                     <div class="absolute top-0 right-0 m-1">  
                         <button type="button" class="bg-red-500 text-white rounded-full p-1 hover:bg-red-600"   
@@ -174,22 +174,22 @@ document.getElementById('images').addEventListener('change', function(event) {
                             </svg>  
                         </button>  
                     </div>  
-                `;  
-            }  
+                `;
+                }
 
-            reader.readAsDataURL(file);  
-            previewContainer.appendChild(preview);  
-        }  
-    }  
+                reader.readAsDataURL(file);
+                previewContainer.appendChild(preview);
+            }
+        }
 
-    // Add preview container after the upload section  
-    event.target.closest('.mb-6').appendChild(previewContainer);  
-});  
+        // Add preview container after the upload section  
+        event.target.closest('.mb-6').appendChild(previewContainer);
+    });
 </script>  
 
-<?php   
+<?php
 // Clear old form data  
-unset($_SESSION['old']);   
+unset($_SESSION['old']);
 ?>  
 
 <?php require 'views/layouts/footer.php'; ?>

@@ -121,13 +121,13 @@ require_once 'views/layouts/navbar.php';
 
                     <!-- Post Code -->  
                     <div>  
-                        <label for="post_code" class="block text-sm font-medium text-gray-700">Post Code</label>  
-                        <input id="post_code"   
-                               name="post_code"   
+                        <label for="postal_code" class="block text-sm font-medium text-gray-700">Postal Code</label>  
+                        <input id="postal_code"   
+                               name="postal_code"   
                                type="text"   
                                required  
                                pattern="[0-9]{4}"  
-                               value="<?= $_POST['post_code'] ?? '' ?>"  
+                               value="<?= $_POST['postal_code'] ?? '' ?>"  
                                class="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm">  
                         <p class="mt-1 text-sm text-gray-500">Format: 1000</p>  
                     </div>  
@@ -175,7 +175,7 @@ require_once 'views/layouts/navbar.php';
 document.querySelector('form').addEventListener('submit', function(e) {  
     const password = document.getElementById('password');  
     const passwordConfirm = document.getElementById('password_confirm');  
-    const postCode = document.getElementById('post_code');  
+    const postCode = document.getElementById('postal_code');  
 
     // Password validation  
     if (password.value !== passwordConfirm.value) {  

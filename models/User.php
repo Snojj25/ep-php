@@ -29,6 +29,59 @@ class User {
         $stmt->execute([':email' => $email]);
         return $stmt->fetchColumn() > 0;
     }
+    
+    
+    
+    public function login($email, $password, $role) {  
+    try {  
+        // 1. First get the user by email and role  
+        $sql = "SELECT * FROM users   
+                WHERE email = :email   
+                AND role = :role   
+                AND is_active = 1   
+                LIMIT 1";  
+
+        $stmt = $this->db->prepare($sql);  
+        $stmt->execute([  
+            ':email' => $email,  
+            ':role' => $role  
+        ]);  
+
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);  
+
+        // 2. Check if user exists  
+        if (!$user) {  
+            return [  
+                'success' => false,  
+                'message' => 'Invalid email or role'  
+            ];  
+        }  
+
+        // 3. Verify password  
+        if (!password_verify($password, $user['password'])) {  
+            return [  
+                'success' => false,  
+                'message' => 'Invalid password'  
+            ];  
+        }  
+
+        // 4. Remove sensitive data before returning  
+        unset($user['password']); // Remove password from return data  
+        
+        // 5. Return success with user data  
+        return [  
+            'success' => true,  
+            'user' => $user  
+        ];  
+
+    } catch (PDOException $e) {  
+        error_log("Login error: " . $e->getMessage());  
+        return [  
+            'success' => false,  
+            'message' => 'Database error occurred'  
+        ];  
+    }  
+}  
 
     public function create($data) {
         $sql = "INSERT INTO users (first_name, last_name, email, password, role, address, postal_code, city, is_active)   

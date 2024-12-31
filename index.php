@@ -19,11 +19,11 @@ $action = isset($_GET['action']) ? htmlspecialchars(
         
         
 
-// For testing purposes, set a default role
-if (!isset($_SESSION['user_role'])) {
-    $_SESSION['user_role'] = 'customer';
-    $_SESSION['user_id'] = 1;
-}
+//// For testing purposes, set a default role
+//if (!isset($_SESSION['user_role'])) {
+//    $_SESSION['user_role'] = 'customer';
+//    $_SESSION['user_id'] = 1;
+//}
 
 // Force HTTPS for secure areas  
 //$secure_areas = ['admin', 'seller', 'customer'];

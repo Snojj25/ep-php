@@ -31,12 +31,13 @@ class SellerController {
     }
 
     public function manageOrders() {
-        $pendingOrders = $this->orderModel->getPending();
+        // $pendingOrders = $this->orderModel->getPending();
+        $allOrders = $this->orderModel->getAll();
         require 'views/seller/orders.php';
     }
 
-    public function updateOrderStatus() {
-        $this->orderModel->updateStatus($_POST['order_id'], $_POST['status']);
+    public function updateOrderStatus($params) {
+        $this->orderModel->updateStatus($params['order_id'], $params['status']);
         header('Location: index.php?controller=seller&action=manageOrders');
     }
 
@@ -59,7 +60,6 @@ class SellerController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
 
-                $_SESSION['errors'] = ["ONE 1"];
 
                 $data = [
                     'name' => cleanInput($params["name"]),
@@ -69,41 +69,47 @@ class SellerController {
                     'is_active' => 1
                 ];
 
-                $_SESSION['errors'] = ["TWO 2"];
-
                 $this->validateProductData($data);
 
-                // Handle image uploads  
-                $uploadedImages = [];
-                if (isset($_FILES['images']) && count($_FILES['images']["name"]) > 0 ) {
-                    
-                    $uploadedImages = $this->handleImageUploads($_FILES['images']);
+                // Handle image upload  
+                $uploadedImage = null;
+                if (isset($_FILES['pimage']) && $_FILES['pimage']['error'] === UPLOAD_ERR_OK) {
+                    $uploadedImage = $this->handleSingleImageUpload($_FILES['pimage']);
 
-                    if (isset($uploadedImages['errors'])) {
-                        $_SESSION['errors'] = $uploadedImages['errors'];
+                    if (isset($uploadedImage['error'])) {
+                        $_SESSION['errors'] = [$uploadedImage['error']];
                         $_SESSION['old'] = $_POST;
-                        
-                        $_SESSION['errors'] = $_FILES['images']; // TODO REMOVE
-                        
                         header('Location: index.php?controller=seller&action=createProduct');
                         return;
                     }
                 }
 
-                $_SESSION['errors'] = ["THREE 3"];
+//                // Temporary debug output  
+//                echo '<pre>';
+//                echo "\n uploadedImage Data:\n";
+//                print_r($uploadedImage);
+//                echo '</pre>';
+//                exit(); // Stop execution here to see the debug data  
+//                header('Location: index.php?controller=seller&action=createProduct');
+//                return;
+
 
                 if (empty($data['name']) || empty($data['price'])) {
                     throw new Exception("Name and price are required");
                 }
 
-                if (count($uploadedImages) == 0) {
+                // Create product with or without image  
+                if ($uploadedImage === null) {
                     if ($this->productModel->create($data)) {
                         $_SESSION['success'] = "Product created successfully";
                         header('Location: index.php?controller=seller&action=manageProducts');
                         exit();
                     }
                 } else {
-                    $productId = $this->productModel->createWithImages($productData, $uploadedImages);
+
+
+
+                    $productId = $this->productModel->createWithImages($data, $uploadedImage);
 
                     if ($productId) {
                         $_SESSION['success'] = 'Product created successfully!';
@@ -111,8 +117,6 @@ class SellerController {
                         return;
                     }
                 }
-
-                $_SESSION['errors'] = ["Four 4"];
             } catch (Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
                 $_SESSION['form_data'] = $_POST;
@@ -124,110 +128,64 @@ class SellerController {
         require 'views/seller/create_product.php';
     }
 
-    private function handleImageUploads($files) {
-        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-        $maxSize = 5 * 1024 * 1024; // 5MB  
-        $uploadedImages = [];
-        $errors = [];
-
-        // Reorganize files array  
-        $filesCount = count($files['name']);
-        for ($i = 1; $i < $filesCount; $i++) {
-            if ($files['error'][$i] === UPLOAD_ERR_OK) {
-                $tmpName = $files['tmp_name'][$i];
-                $name = $files['name'][$i];
-                $type = $files['type'][$i];
-                $size = $files['size'][$i];
-
-                // Validate file  
-                if (!in_array($type, $allowedTypes)) {
-                    $errors[] = "File '$name' is not an allowed image type.";
-                    continue;
-                }
-
-                if ($size > $maxSize) {
-                    $errors[] = "File '$name' exceeds maximum size of 5MB.";
-                    continue;
-                }
-
-                // Generate unique filename  
-                $extension = pathinfo($name, PATHINFO_EXTENSION);
-                $newFilename = uniqid() . '_' . time() . '.' . $extension;
-                $filePath = $this->uploadDir . $newFilename;
-
-                // Move file to upload directory  
-                if (move_uploaded_file($tmpName, $filePath)) {
-                    $uploadedImages[] = [
-                        'file_name' => $newFilename,
-                        'file_path' => $filePath
-                    ];
-                } else {
-                    $errors[] = "Failed to upload file '$name'.";
-                }
-            } else {
-                $errors[] = "Error uploading file '{$files['name'][$i]}'.";
-            }
-        }
-
-        if (!empty($errors)) {
-            return ['errors' => $errors];
-        }
-
-        return $uploadedImages;
-    }
-
-    private function validateProductData($data) {
-        $errors = [];
-
-        if (empty($data['name'])) {
-            $errors[] = 'Product name is required.';
-        }
-
-        if (empty($data['description'])) {
-            $errors[] = 'Product description is required.';
-        }
-
-        if (!is_numeric($data['price']) || $data['price'] <= 0) {
-            $errors[] = 'Price must be a positive number.';
-        }
-
-        if (!is_numeric($data['stock']) || $data['stock'] < 0) {
-            $errors[] = 'Stock must be a non-negative number.';
-        }
-
-        return $errors;
-    }
-
-    public function editProduct($id) {
+    public function editProduct($params) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
-               
+
+                $product = $this->productModel->getById($params["id"]);
 
                 $data = [
-                    'name' => filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING),
-                    'description' => filter_input(INPUT_POST, 'description', FILTER_SANITIZE_STRING),
-                    'price' => filter_input(INPUT_POST, 'price', FILTER_VALIDATE_FLOAT),
-                    'is_active' => isset($_POST['is_active']) ? 1 : 0
+                    'name' => cleanInput($params["name"]),
+                    'description' => cleanInput($params["description"]),
+                    'price' => cleanInput($params["price"]),
+                    'stock' => cleanInput($params["stock"]),
+                    'is_active' => 1
                 ];
+
+                // Handle image upload  
+                $uploadedImage = null;
+                if (isset($_FILES['pimage']) && $_FILES['pimage']['error'] === UPLOAD_ERR_OK) {
+                    $uploadedImage = $this->handleSingleImageUpload($_FILES['pimage']);
+
+                    if (isset($uploadedImage['error'])) {
+                        $_SESSION['errors'] = [$uploadedImage['error']];
+                        $_SESSION['old'] = $_POST;
+                        header('Location: index.php?controller=seller&action=createProduct');
+                        return;
+                    }
+                }
+
 
                 if (empty($data['name']) || empty($data['price'])) {
                     throw new Exception("Name and price are required");
                 }
 
-                if ($this->productModel->update($id, $data)) {
-                    $_SESSION['success'] = "Product updated successfully";
-                    header('Location: index.php?controller=seller&action=manageProducts');
-                    exit();
+
+
+                // Create product with or without image  
+                if ($uploadedImage === null) {
+                    if ($this->productModel->update($params["id"], $data)) {
+                        $_SESSION['success'] = "Product updated successfully";
+                        header('Location: index.php?controller=seller&action=manageProducts');
+                        exit();
+                    }
+                } else {
+                    if ($this->productModel->updateWithImage($params["id"], $data, $uploadedImage)) {
+                        $_SESSION['success'] = "Product updated successfully!";
+                        header('Location: index.php?controller=seller&action=manageProducts');
+                        exit();
+                    }
                 }
             } catch (Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
                 $_SESSION['form_data'] = $_POST;
+                $id = $params["id"];
                 header("Location: index.php?controller=seller&action=editProduct&id=$id");
                 exit();
             }
         }
 
-        $product = $this->productModel->getById($id);
+        $product = $this->productModel->getById($params["id"]);
         if (!$product) {
             $_SESSION['error'] = "Product not found";
             header('Location: index.php?controller=seller&action=manageProducts');
@@ -258,15 +216,15 @@ class SellerController {
         require 'views/seller/order_history.php';
     }
 
-    public function viewOrder($id) {
-        $order = $this->orderModel->getById($id);
+    public function viewOrder($params) {
+        $order = $this->orderModel->getById($params["id"]);
         if (!$order) {
             $_SESSION['error'] = "Order not found";
             header('Location: index.php?controller=seller&action=manageOrders');
             exit();
         }
 
-        $orderItems = $this->orderModel->getOrderItems($id);
+        $orderItems = $this->orderModel->getOrderItems($params["id"]);
         $customer = $this->userModel->getById($order['user_id']);
 
         require 'views/seller/view_order.php';
@@ -284,5 +242,68 @@ class SellerController {
         }
         header('Location: index.php?controller=seller&action=manageCustomers');
         exit();
+    }
+
+    // ------------------- ------------------- ------------------- -------------------
+
+    /**
+     * Handle single image upload  
+     * @param array $file Single file from $_FILES  
+     * @return array|null Image data or null on failure  
+     */
+    private function handleSingleImageUpload($file) {
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        $maxSize = 5 * 1024 * 1024; // 5MB  
+        // Validate file  
+        if (!in_array($file['type'], $allowedTypes)) {
+            return ['error' => "File '{$file['name']}' is not an allowed image type."];
+        }
+
+        if ($file['size'] > $maxSize) {
+            return ['error' => "File '{$file['name']}' exceeds maximum size of 5MB."];
+        }
+
+        // Create upload directory if it doesn't exist  
+        $uploadDir = 'uploads/products/';
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        // Generate unique filename  
+        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $newFilename = uniqid() . '_' . time() . '.' . $extension;
+        $filePath = $uploadDir . $newFilename;
+
+        // Move file to upload directory  
+        if (move_uploaded_file($file['tmp_name'], $filePath)) {
+            return [
+                'file_name' => $newFilename,
+                'file_path' => $filePath
+            ];
+        }
+
+        return ['error' => "Failed to upload file '{$file['name']}'."];
+    }
+
+    private function validateProductData($data) {
+        $errors = [];
+
+        if (empty($data['name'])) {
+            $errors[] = 'Product name is required.';
+        }
+
+        if (empty($data['description'])) {
+            $errors[] = 'Product description is required.';
+        }
+
+        if (!is_numeric($data['price']) || $data['price'] <= 0) {
+            $errors[] = 'Price must be a positive number.';
+        }
+
+        if (!is_numeric($data['stock']) || $data['stock'] < 0) {
+            $errors[] = 'Stock must be a non-negative number.';
+        }
+
+        return $errors;
     }
 }

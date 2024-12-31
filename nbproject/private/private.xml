@@ -3,28 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/models/DbConnection.php</file>
-            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/notes/notes.txt</file>
             <file>file:/home/snojj/NetBeansProjects/ep-seminarska/views/admin/dashboard.php</file>
-            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/controllers/AdminController.php</file>
-            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/views/customer/products.php</file>
-            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/models/User.php</file>
-            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/views/layouts/header.php</file>
-            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/controllers/SellerController.php</file>
-            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/views/customer/cart.php</file>
-            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/config/config.php</file>
-            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/views/seller/dashboard.php</file>
-            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/controllers/CustomerController.php</file>
-            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/views/layouts/footer.php</file>
-            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/views/seller/orders.php</file>
-            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/views/seller/products.php</file>
             <file>file:/home/snojj/NetBeansProjects/ep-seminarska/models/Order.php</file>
-            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/controllers/utils.php</file>
+            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/controllers/AdminController.php</file>
+            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/notes/todos.txt</file>
             <file>file:/home/snojj/NetBeansProjects/ep-seminarska/sql/ecommerce.sql</file>
-            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/models/Cart.php</file>
-            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/views/admin/sellers.php</file>
-            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/models/DBInit.php</file>
-            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/models/Product.php</file>
+            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/controllers/SellerController.php</file>
+            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/views/seller/dashboard.php</file>
+            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/views/seller/view_order.php</file>
+            <file>file:/home/snojj/NetBeansProjects/ep-seminarska/views/seller/orders.php</file>
         </group>
     </open-files>
 </project-private>

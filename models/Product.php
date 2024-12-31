@@ -60,39 +60,42 @@ class Product {
         ]);
     }
 
-    public function createWithImages($productData, $images) {
+    public function createWithImages($productData, $pimage) {
         try {
             $this->db->beginTransaction();
 
             // Insert product  
-            $sql = "INSERT INTO products (name, description, price, stock, category_id, created_at)   
-                    VALUES (:name, :description, :price, :stock, :category_id, NOW())";
+            $sql = "INSERT INTO products (name, description, price, stock, created_at)   
+                    VALUES (:name, :description, :price, :stock, NOW())";
 
             $stmt = $this->db->prepare($sql);
-            $stmt->execute([
+            $success = $stmt->execute([
                 ':name' => $productData['name'],
                 ':description' => $productData['description'],
                 ':price' => $productData['price'],
-                ':stock' => $productData['stock'],
-                ':category_id' => $productData['category_id']
+                ':stock' => $productData['stock']
             ]);
+            if (!$success) {
+                $_SESSION['errors'] = ["Failed to insert product"];
+            }
 
             $productId = $this->db->lastInsertId();
 
             // Insert images  
-            if (!empty($images)) {
+            if ($pimage != null) {
                 $sql = "INSERT INTO product_images (product_id, file_name, file_path, is_primary)   
                         VALUES (:product_id, :file_name, :file_path, :is_primary)";
 
                 $stmt = $this->db->prepare($sql);
 
-                foreach ($images as $index => $image) {
-                    $stmt->execute([
-                        ':product_id' => $productId,
-                        ':file_name' => $image['file_name'],
-                        ':file_path' => $image['file_path'],
-                        ':is_primary' => $index === 0 // First image is primary  
-                    ]);
+                $success = $stmt->execute([
+                    ':product_id' => $productId,
+                    ':file_name' => $pimage['file_name'],
+                    ':file_path' => $pimage['file_path'],
+                    ':is_primary' => 1 // First image is primary  
+                ]);
+                if (!$success) {
+                    $_SESSION['errors'] = ["Failed to insert product image"];
                 }
             }
 
@@ -105,16 +108,15 @@ class Product {
         }
     }
 
-    public function getProductImages($productId) {
+    public function getProductImage($productId) {
         try {
             $sql = "SELECT * FROM product_images   
-                WHERE product_id = :product_id   
-                ORDER BY is_primary DESC";
+                WHERE product_id = :product_id";
 
             $stmt = $this->db->prepare($sql);
             $stmt->execute([':product_id' => $productId]);
 
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Error getting product images: " . $e->getMessage());
             return [];
@@ -125,15 +127,107 @@ class Product {
         $statement = $this->db->prepare("UPDATE products SET   
             name = :name,  
             description = :description,  
-            price = :price  
+            price = :price,
+            stock = :stock
             WHERE id = :id");
 
         return $statement->execute([
                     ':id' => $id,
                     ':name' => $data['name'],
                     ':description' => $data['description'],
-                    ':price' => $data['price']
+                    ':price' => $data['price'],
+                    ':stock' => $data['stock']
         ]);
+    }
+
+    public function updateWithImage($id, $productData, $newImage) {
+        try {
+            $this->db->beginTransaction();
+
+            // 1. Update product details  
+            $sql = "UPDATE products SET   
+                name = :name,  
+                description = :description,  
+                price = :price,  
+                stock = :stock  
+                WHERE id = :id";
+
+            $stmt = $this->db->prepare($sql);
+            $success = $stmt->execute([
+                ':id' => $id,
+                ':name' => $productData['name'],
+                ':description' => $productData['description'],
+                ':price' => $productData['price'],
+                ':stock' => $productData['stock']
+            ]);
+
+            if (!$success) {
+                throw new PDOException("Failed to update product details");
+            }
+
+            // 2. If there's a new image, handle the image update  
+            if ($newImage != null) {
+                // 2.1 First, get the current image(s)  
+                $sql = "SELECT id, file_path FROM product_images WHERE product_id = :product_id";
+                $stmt = $this->db->prepare($sql);
+                $stmt->execute([':product_id' => $id]);
+                $oldImages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // 2.2 Delete old images from filesystem  
+                foreach ($oldImages as $oldImage) {
+                    if (file_exists($oldImage['file_path'])) {
+                        unlink($oldImage['file_path']); // Delete file from filesystem  
+                    }
+                }
+
+                // 2.3 Delete old images from database  
+                $sql = "DELETE FROM product_images WHERE product_id = :product_id";
+                $stmt = $this->db->prepare($sql);
+                $stmt->execute([':product_id' => $id]);
+
+                // 2.4 Insert new image  
+                $sql = "INSERT INTO product_images (product_id, file_name, file_path, is_primary)   
+                    VALUES (:product_id, :file_name, :file_path, :is_primary)";
+
+                $stmt = $this->db->prepare($sql);
+                $success = $stmt->execute([
+                    ':product_id' => $id,
+                    ':file_name' => $newImage['file_name'],
+                    ':file_path' => $newImage['file_path'],
+                    ':is_primary' => 1
+                ]);
+
+                if (!$success) {
+                    throw new PDOException("Failed to insert new image");
+                }
+            }
+
+            $this->db->commit();
+            return true;
+        } catch (PDOException $e) {
+            $this->db->rollBack();
+            error_log("Error updating product with images: " . $e->getMessage());
+            $_SESSION['errors'] = ["Database error: " . $e->getMessage()];
+            return false;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            error_log("General error: " . $e->getMessage());
+            $_SESSION['errors'] = ["Error: " . $e->getMessage()];
+            return false;
+        }
+    }
+
+// Helper function to get current images for a product  
+    public function getProductImages($productId) {
+        try {
+            $sql = "SELECT * FROM product_images WHERE product_id = :product_id";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([':product_id' => $productId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error getting product images: " . $e->getMessage());
+            return [];
+        }
     }
 
     public function getCount() {

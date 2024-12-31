@@ -25,7 +25,8 @@ class CustomerController {
         // Create a map of product images  
         $productImages = [];
         foreach ($products as $product) {
-            $productImages[$product['id']] = $this->productModel->getProductImages($product['id']);
+           
+            $productImage[$product['id']] = $this->productModel->getProductImage($product['id']);
         }
  
         $data = [
@@ -42,6 +43,7 @@ class CustomerController {
     }
 
     public function addToCart() {
+        
         $this->cartModel->addItem($_POST['product_id'], $_POST['quantity']);
         header('Location: index.php?controller=customer&action=cart');
     }
