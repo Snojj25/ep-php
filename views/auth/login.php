@@ -70,6 +70,8 @@ require_once 'views/layouts/navbar.php';
                     Don't have an account? Register here  
                 </a>  
             </div>  
+            
+            <div class="g-recaptcha" data-sitekey="6LffgasqAAAAAHtI4DaZQ-MfYYBsqIxumWs2xgZU"></div>  
         </form>  
     </div>  
 </div>  

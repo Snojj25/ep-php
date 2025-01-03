@@ -3,19 +3,21 @@
 // controllers/utils.php  
 
 
+
+
 function validateRequest($requiredRole) {
-    if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on') {
-        header('HTTP/1.1 403 Forbidden');
-        exit('Secure connection required');
-    }
+//    if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on') {
+//        header('HTTP/1.1 403 Forbidden');
+//        exit('Secure connection required');
+//    }
 
     // First check session-based authentication  
-    if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
+    if (!isset($_SESSION['user']['id']) || !isset($_SESSION["user"]['role'])) {
         header('Location: index.php?controller=auth&action=login');
         exit;
     }
 
-    if ($_SESSION['role'] !== $requiredRole) {
+    if ($_SESSION['user']["role"] !== $requiredRole) {
         header('HTTP/1.1 403 Forbidden');
         exit('Unauthorized access');
     }
@@ -23,7 +25,7 @@ function validateRequest($requiredRole) {
 
 function checkRole($requiredRole) {
 
-//    validateRequest($requiredRole);
+    validateRequest($requiredRole);
 //  
 //    // Add certificate verification  
 //    $certAuth = new CertificateAuthMiddleware();  

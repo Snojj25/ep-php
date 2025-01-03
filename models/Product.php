@@ -10,6 +10,35 @@ class Product {
         $this->db = DBInit::getInstance();
     }
 
+    public function binarySearch($search_term, $exclude_term) {
+
+        //[':search_term' => $search_term, ':exclude_term' => $exclude_term]
+        
+        try {
+//            $sql = "SELECT * FROM products WHERE is_active=1 AND MATCH (name) AGAINST (CONCAT('+', :search_term, ' -', :exclude_term) IN BOOLEAN MODE)";
+            $sql = "SELECT * FROM products WHERE is_active=1 AND MATCH (name) AGAINST (CONCAT('+', :search_term, ' -', :exclude_term) IN NATURAL LANGUAGE MODE)";
+            //
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([":search_term" => $search_term, ':exclude_term' => $exclude_term]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error getting sorted products: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function getProductsSortedByName() {
+        try {
+            $sql = "SELECT * FROM products WHERE is_active = 1 ORDER BY name ASC";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error getting sorted products: " . $e->getMessage());
+            return [];
+        }
+    }
+
     public function getById($id, $includeInactive = false) {
         try {
             $sql = "SELECT * FROM products WHERE id = :id";

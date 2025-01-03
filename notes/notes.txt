@@ -26,3 +26,13 @@ SHOW DATABASES;
 USE ecommerce;
 
 SHOW TABLES;
+
+
+
+
+=======================================================
+
+site key: 6LffgasqAAAAAHtI4DaZQ-MfYYBsqIxumWs2xgZU
+
+secret key: 6LffgasqAAAAAOgBNh0W8_MQt-d-AaPHZbOJ88my
+

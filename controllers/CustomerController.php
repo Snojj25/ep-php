@@ -12,7 +12,7 @@ class CustomerController {
     private $cartModel;
 
     public function __construct() {
-        # checkRole('customer');
+        checkRole('customer');
 
         $this->productModel = new Product();
         $this->orderModel = new Order();
@@ -25,17 +25,19 @@ class CustomerController {
         // Create a map of product images  
         $productImages = [];
         foreach ($products as $product) {
-           
+
             $productImage[$product['id']] = $this->productModel->getProductImage($product['id']);
         }
- 
+
         $data = [
             'products' => $products,
             'productImages' => $productImages
         ];
 
         require 'views/customer/products.php';
+        
     }
+    
 
     public function cart() {
         $cartItems = $this->cartModel->getItems();
@@ -43,7 +45,7 @@ class CustomerController {
     }
 
     public function addToCart() {
-        
+
         $this->cartModel->addItem($_POST['product_id'], $_POST['quantity']);
         header('Location: index.php?controller=customer&action=cart');
     }
@@ -83,6 +85,30 @@ class CustomerController {
             $cartItems = $this->cartModel->getItems();
             require 'views/customer/checkout.php';
         }
+    }
+
+    public function search($params) {
+        $searchTerm = isset($params['q']) ? cleanInput($params['q']) : '';
+        $excludeTerm = isset($params['x']) ? cleanInput($params['x']) : '';
+
+        $results = [];
+
+        if (!empty($searchTerm)) {
+            $results = $this->productModel->binarySearch($searchTerm, $excludeTerm);
+        }
+
+        if (isset($params['ajax'])) {
+            // Return JSON for AJAX requests  
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => true,
+                'results' => $results
+            ]);
+            exit;
+        }
+
+        // Regular page render  
+        require 'views/customer/search.php';
     }
 
     public function orderConfirmation() {

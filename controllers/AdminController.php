@@ -15,13 +15,13 @@ class AdminController {
     }
 
     public function index() {
-        $adminData = $this->userModel->getById($_SESSION['user_id']);
+        $adminData = $this->userModel->getById($_SESSION['user']['id']);
         require 'views/admin/dashboard.php';
     }
 
     // Profile Management  
     public function profile($params) {
-        $admin = $this->userModel->getById($_SESSION['user_id']);
+        $admin = $this->userModel->getById($_SESSION['user']['id']);
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
@@ -31,7 +31,7 @@ class AdminController {
                 'email' => cleanInput($params["email"]),
             ];
 
-            if ($this->userModel->updateProfile($_SESSION['user_id'], $data)) {
+            if ($this->userModel->updateProfile($_SESSION['user']['id'], $data)) {
                 $_SESSION['success'] = "Profile updated successfully";
             } else {
                 $_SESSION['error'] = "Failed to update profile";

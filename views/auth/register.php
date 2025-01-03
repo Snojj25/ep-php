@@ -166,6 +166,8 @@ require_once 'views/layouts/navbar.php';
                     Sign in here  
                 </a>  
             </div>  
+            
+            <div class="g-recaptcha" data-sitekey="6LffgasqAAAAAHtI4DaZQ-MfYYBsqIxumWs2xgZU"></div>  
         </form>  
     </div>  
 </div>  

@@ -7,6 +7,8 @@
 
         <!-- Tailwind CSS via CDN -->  
         <script src="https://cdn.tailwindcss.com"></script>  
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>  
+
 
         <!-- Optional: Configure Tailwind -->  
         <script>

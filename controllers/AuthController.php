@@ -12,8 +12,7 @@ class AuthController {
     }
 
     public function login($params) {
-        
-        
+
 //        echo '<pre>';
 //        echo "\n session user:\n";
 //        print_r($_SESSION['user']);
@@ -21,10 +20,10 @@ class AuthController {
 //        exit(); // Stop execution here to see the debug data  
 //        header('Location: index.php?controller=customer&action=register');
 //        return;
-        
+//        
         // Check if already logged in  
         if (isset($_SESSION['user']['id'])) {
-            
+
             $this->redirectBasedOnRole($_SESSION['user']['role']);
         }
 
@@ -48,6 +47,16 @@ class AuthController {
 //                    return;  
 //                }  
 //            }  
+//            
+
+            // Validate Captcha
+            $success = $this->verifyCaptcha();
+            if (!$success) {
+                $_SESSION['error'] = "Captcha verification failed.";
+                require_once 'views/auth/login.php';
+                return;
+            }
+
             // Attempt login  
             $result = $this->userModel->login($email, $password, $role);
 
@@ -56,8 +65,7 @@ class AuthController {
                 $_SESSION['user'] = $result['user'];
                 $_SESSION['logged_in'] = true;
 
-                
-               $this->redirectBasedOnRole($result['user']['role']); 
+                $this->redirectBasedOnRole($result['user']['role']);
             } else {
                 $_SESSION['error'] = $result['message'];
                 $_SESSION['old_email'] = $email;
@@ -65,7 +73,6 @@ class AuthController {
                 header('Location: index.php?controller=auth&action=login');
                 exit();
             }
-
         }
 
         // Display login form  
@@ -101,7 +108,15 @@ class AuthController {
                 require_once 'views/auth/register.php';
                 return;
             }
-
+            
+            // Validate Captcha
+            $success = $this->verifyCaptcha();
+            if (!$success) {
+                $_SESSION['error'] = "Captcha verification failed.";
+                require_once 'views/auth/register.php';
+                return;
+            }
+            
             // Check if email already exists  
             if ($this->userModel->emailExists($data['email'])) {
                 $_SESSION['error'] = "Email already registered.";
@@ -145,13 +160,26 @@ class AuthController {
         return true;
     }
 
+    private function verifyCaptcha() {
+        // Get the reCAPTCHA response  
+        $recaptchaResponse = $_POST['g-recaptcha-response'];
+
+        // Verify the response  
+        $secretKey = "6LffgasqAAAAAOgBNh0W8_MQt-d-AaPHZbOJ88my";
+        $verifyResponse = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . $secretKey . '&response=' . $recaptchaResponse);
+
+        $responseData = json_decode($verifyResponse);
+
+        return $responseData->success;
+    }
+
     private function redirectBasedOnRole($role) {
         switch ($role) {
             case 'admin':
-                header('Location: index.php?controller=admin&action=dashboard');
+                header('Location: index.php?controller=admin&action=index');
                 break;
             case 'seller':
-                header('Location: index.php?controller=seller&action=dashboard');
+                header('Location: index.php?controller=seller&action=index');
                 break;
             case 'customer':
                 header('Location: index.php?controller=customer&action=index');

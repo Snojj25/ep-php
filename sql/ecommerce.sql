@@ -10,7 +10,7 @@ CREATE TABLE users (
     last_name VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role ENUM('administrator', 'seller', 'customer') NOT NULL,
+    role ENUM('admin', 'seller', 'customer') NOT NULL,
     address VARCHAR(100),
     house_number VARCHAR(10),
     postal_code VARCHAR(10),
@@ -31,6 +31,7 @@ CREATE TABLE products (
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FULLTEXT (name),
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -86,7 +87,7 @@ INSERT INTO users (
     'User',
     'admin@example.com',
     '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', -- password: 'password'
-    'administrator'
+    'admin'
 );
 
 -- Insert sample seller

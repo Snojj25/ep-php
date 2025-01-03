@@ -15,12 +15,8 @@ require_once 'views/layouts/navbar.php';
                        class="text-blue-600 hover:underline">Manage Sellers</a>  
                 </li>  
                 <li>  
-                    <a href="index.php?controller=admin&action=profile"   
+                    <a href="index.php?controller=user&action=profile"   
                        class="text-blue-600 hover:underline">Update Profile</a>  
-                </li>  
-                <li>  
-                    <a href="index.php?controller=admin&action=changePassword"   
-                       class="text-blue-600 hover:underline">Change Password</a>  
                 </li>  
             </ul>  
         </div>  

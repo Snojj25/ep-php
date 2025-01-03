@@ -1,6 +1,7 @@
 <?php
 require_once 'views/layouts/header.php';
 require_once 'views/layouts/navbar.php';
+var_dump($_SESSION['user']['role']);
 ?>  
 
 
