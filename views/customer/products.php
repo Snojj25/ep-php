@@ -1,6 +1,7 @@
 <?php
 require_once 'views/layouts/header.php';
 require_once 'views/layouts/navbar.php';
+
 ?>  
 
 <main class="max-w-7xl mx-auto px-4 py-12">  

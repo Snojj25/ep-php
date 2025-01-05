@@ -6,7 +6,8 @@ define('DB_USER', 'root');
 define('DB_PASS', '');
 
 // Application configuration
-define('BASE_URL', 'http://localhost:8000');
+// define('BASE_URL', 'http://localhost:8000');
+define('BASE_URL', 'https://localhost');
 define('DEBUG_MODE', true);
 
 // Error reporting
@@ -19,6 +20,7 @@ if (DEBUG_MODE) {
 }
 
 // Session configuration
+ini_set('session.save_path', __DIR__ . '/../tmp/sessions');  
 session_start();
 
 // Autoloader function

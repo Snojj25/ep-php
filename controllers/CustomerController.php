@@ -26,7 +26,7 @@ class CustomerController {
         $productImages = [];
         foreach ($products as $product) {
 
-            $productImage[$product['id']] = $this->productModel->getProductImage($product['id']);
+            $productImages[$product['id']] = $this->productModel->getProductImage($product['id']);
         }
 
         $data = [
@@ -35,9 +35,7 @@ class CustomerController {
         ];
 
         require 'views/customer/products.php';
-        
     }
-    
 
     public function cart() {
         $cartItems = $this->cartModel->getItems();

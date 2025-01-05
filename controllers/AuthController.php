@@ -8,7 +8,11 @@ class AuthController {
     private $userModel;
 
     public function __construct() {
+        
+         enforceHTTPS();
+        
         $this->userModel = new User();
+        
     }
 
     public function login($params) {
@@ -23,7 +27,6 @@ class AuthController {
 //        
         // Check if already logged in  
         if (isset($_SESSION['user']['id'])) {
-
             $this->redirectBasedOnRole($_SESSION['user']['role']);
         }
 

@@ -2,13 +2,16 @@
 
 require_once 'controllers/utils.php';
 require_once 'models/Product.php';
+require_once 'models/User.php';
 
 class ApiController {
 
     private $productModel;
+    private $userModel;
 
     public function __construct() {
         $this->productModel = new Product();
+        $this->userModel = new User();
     }
 
     /**
@@ -19,17 +22,28 @@ class ApiController {
 
             $products = $this->productModel->getAll();
 
-            // Create a map of product images  
-            $productImages = [];
-            foreach ($products as $product) {
+            for ($i = 0; $i < count($products); $i++) {
 
-                $productImage[$product['id']] = $this->productModel->getProductImage($product['id']);
+                // Convert the price to a float
+                $products[$i]["price"] = floatval($products[$i]["price"]);
+
+                // Get and base64 encode the file contents of the image
+                $image_info = $this->productModel->getProductImage($products[$i]['id']);
+
+                if ($image_info == null) {
+                    continue;
+                }
+
+                $filepath = __DIR__ . "/../uploads/products/" . $image_info["file_name"];
+                $imageData = base64_encode(file_get_contents($filepath));
+
+                $products[$i]["imageBase64"] = $imageData;
             }
+
 
             // Format response  
             $response = [
                 'products' => $products,
-                'productImages' => $productImages
             ];
 
             ApiResponse::send($response);
@@ -66,6 +80,54 @@ class ApiController {
             ];
 
             ApiResponse::send($response);
+        } catch (Exception $e) {
+            error_log("API Error: " . $e->getMessage());
+            ApiResponse::error('Internal server error', 500);
+        }
+    }
+
+    /**
+     * Get all products  
+     */
+    public function authenticate($params) {
+
+        // NOTE: enforceHTTPS() -To bi moral klicat, ampak potem, bi moral nalozit nas certificate na android napravo, ampak to se ne splaca, ker je emulator in je bolj smotan.
+        // example: https://localhost/?controller=api&action=authenticate&email=customer@example.com&password=password
+
+        try {
+
+            $email = $params["email"];
+            $password = $params["password"];
+            $role = "customer";
+
+            // Validate required fields  
+            if (empty($email) || empty($password) || empty($role)) {
+                $_SESSION['error'] = "All fields are required.";
+                return;
+            }
+
+            // Attempt login  
+            $result = $this->userModel->login($email, $password, $role);
+
+            if ($result['success']) {
+
+
+                // Format response  
+                $response = [
+                    'authenticated' => true,
+                    "user" => $result['user']
+                ];
+
+                ApiResponse::send($response);
+            } else {
+                // Format response  
+                $response = [
+                    'authenticated' => false,
+                    "user" => null
+                ];
+
+                ApiResponse::send($response);
+            }
         } catch (Exception $e) {
             error_log("API Error: " . $e->getMessage());
             ApiResponse::error('Internal server error', 500);

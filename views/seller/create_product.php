@@ -1,9 +1,6 @@
 <?php
 require_once 'views/layouts/header.php';
 require_once 'views/layouts/navbar.php';
-
-$_SESSION['errors'] = null;
-var_dump($_SESSION['errors']);
 ?>  
 
 

@@ -23,11 +23,6 @@ $action = isset($_GET['action']) ? htmlspecialchars(
                 'UTF-8'
         ) : 'index';
 
-//// For testing purposes, set a default role
-//if (!isset($_SESSION['user_role'])) {
-//    $_SESSION['user_role'] = 'customer';
-//    $_SESSION['user_id'] = 1;
-//}
 // Force HTTPS for secure areas  
 //$secure_areas = ['admin', 'seller', 'customer'];
 //$current_area = isset($_GET['controller']) ? $_GET['controller'] : 'customer';
@@ -38,6 +33,8 @@ $action = isset($_GET['action']) ? htmlspecialchars(
 //    header('Location: ' . $redirect);
 //    exit();
 //}
+
+
 // Map controllers
 try {
     // Collect all parameters from both GET and POST  
@@ -76,7 +73,7 @@ function default_index() {
         $productImages = [];
         foreach ($products as $product) {
            
-            $productImage[$product['id']] = $productModel->getProductImage($product['id']);
+            $productImages[$product['id']] = $productModel->getProductImage($product['id']);
         }
  
         $data = [
