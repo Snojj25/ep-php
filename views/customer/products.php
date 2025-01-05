@@ -1,7 +1,6 @@
 <?php
 require_once 'views/layouts/header.php';
 require_once 'views/layouts/navbar.php';
-
 ?>  
 
 <main class="max-w-7xl mx-auto px-4 py-12">  
@@ -68,8 +67,16 @@ require_once 'views/layouts/navbar.php';
                                                    min="1"  
                                                    class="block w-full rounded-md border-gray-300 text-center focus:border-blue-500 focus:ring-blue-500">  
                                         </div>  
-                                        <button type="submit" disabled=<?= isset($_SESSION['user']) && $_SESSION['user']['role'] == "customer" ?>
-                                                class="w-full max-w-xs bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">  
+                                        <?php
+                                        $isUserLoggedIn = isset($_SESSION['user']) && $_SESSION['user']['role'] == "customer";
+
+                                        $baseClasses = "w-full max-w-xs py-2 px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 text-white";
+                                        $stateClasses = !$isUserLoggedIn ? "bg-gray-400 cursor-not-allowed opacity-50" : "bg-blue-600 hover:bg-blue-700";
+                                        ?>  
+                                        <button type="submit" 
+                                        <?= !$isUserLoggedIn ? 'disabled' : '' ?> 
+                                                id="submitBtn" 
+                                                class="<?= $baseClasses . ' ' . $stateClasses ?>">  
                                             Add to Cart  
                                         </button>  
                                     </div>  
@@ -77,6 +84,9 @@ require_once 'views/layouts/navbar.php';
         <!--                            <button onclick="addToCart(<?= $product['id'] ?>)"   
                                             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">  
                                         Add to Cart  
+        
+                            <?= true ? 'disabled=<?= false ?>' : ' ' ?> 
+        disabled=<?= isset($_SESSION['user']) && $_SESSION['user']['role'] == "customer" ?>
                                     </button>  -->
                         </div>  
                     </div>  

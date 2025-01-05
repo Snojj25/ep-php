@@ -39,6 +39,7 @@ $action = isset($_GET['action']) ? htmlspecialchars(
 try {
     // Collect all parameters from both GET and POST  
     $params = array_merge($_GET, $_POST);
+    
 
     $controllerName = ucfirst($controller) . 'Controller';
 

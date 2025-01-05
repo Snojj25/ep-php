@@ -42,13 +42,16 @@ class CustomerController {
         require 'views/customer/cart.php';
     }
 
-    public function addToCart() {
+    public function addToCart($params) {
 
-        $this->cartModel->addItem($_POST['product_id'], $_POST['quantity']);
+        $prod_id = cleanInput($params["product_id"]);
+        $quantity = cleanInput($params["quantity"]);
+
+        $this->cartModel->addItem($prod_id, $quantity);
         header('Location: index.php?controller=customer&action=cart');
     }
 
-    public function checkout() {
+    public function checkout($params) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Validate required fields  
@@ -61,18 +64,18 @@ class CustomerController {
                 }
             }
 
-            // Collect shipping details from POST data  
+            // Collect shipping details from POST data
             $shippingDetails = [
-                'shipping_address' => $_POST['shipping_address'],
-                'postal_code' => $_POST['postal_code'],
-                'city' => $_POST['city'],
-                'phone' => $_POST['phone'],
-                'notes' => $_POST['notes'] ?? null
+                'shipping_address' => cleanInput($params['shipping_address']),
+                'postal_code' => cleanInput($params['postal_code']),
+                'city' => cleanInput($params["city"]),
+                'phone' => cleanInput($params["phone"]),
+                'notes' => cleanInput($params["notes"]) ?? null
             ];
 
             $cartItems = $this->cartModel->getItems();
             $orderId = $this->orderModel->create(
-                    $_SESSION['user_id'],
+                    $_SESSION['user']['id'],
                     $cartItems,
                     $this->cartModel->getTotal(),
                     $shippingDetails
@@ -109,17 +112,17 @@ class CustomerController {
         require 'views/customer/search.php';
     }
 
-    public function orderConfirmation() {
-        if (!isset($_GET['id'])) {
+    public function orderConfirmation($params) {
+        if (cleanInput($params["id"]) == null) {
             header('Location: index.php?controller=customer&action=index');
             return;
         }
 
-        $orderId = $_GET['id'];
+        $orderId = cleanInput($params["id"]);
         $order = $this->orderModel->getById($orderId);
 
         // Verify order belongs to current user  
-        if (!$order || $order['user_id'] != $_SESSION['user_id']) {
+        if (!$order || $order['user_id'] != $_SESSION['user']['id']) {
             header('Location: index.php?controller=customer&action=index');
             return;
         }
@@ -129,13 +132,13 @@ class CustomerController {
     }
 
     public function orderHistory() {
-        $orders = $this->orderModel->getByUser($_SESSION['user_id']);
+        $orders = $this->orderModel->getByUser($_SESSION['user']['id']);
         require 'views/customer/order_history.php';
     }
 
-    public function removeFromCart() {
+    public function removeFromCart($params) {
         // Check if product_id is provided  
-        if (!isset($_POST['product_id'])) {
+        if (cleanInput($params["product_id"]) == null) {
             $_SESSION['error'] = 'Invalid request';
             header('Location: index.php?controller=customer&action=cart');
             return;
@@ -143,7 +146,7 @@ class CustomerController {
 
         try {
             // Remove item from cart  
-            $this->cartModel->removeItem($_POST['product_id']);
+            $this->cartModel->removeItem(cleanInput($params["product_id"]));
             $_SESSION['success'] = 'Item removed from cart successfully';
         } catch (Exception $e) {
             $_SESSION['error'] = 'Failed to remove item from cart';

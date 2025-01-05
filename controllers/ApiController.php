@@ -3,15 +3,18 @@
 require_once 'controllers/utils.php';
 require_once 'models/Product.php';
 require_once 'models/User.php';
+require_once 'models/Order.php';
 
 class ApiController {
 
     private $productModel;
     private $userModel;
+    private $orderModel;
 
     public function __construct() {
         $this->productModel = new Product();
         $this->userModel = new User();
+        $this->orderModel = new Order();
     }
 
     /**
@@ -86,9 +89,6 @@ class ApiController {
         }
     }
 
-    /**
-     * Get all products  
-     */
     public function authenticate($params) {
 
         // NOTE: enforceHTTPS() -To bi moral klicat, ampak potem, bi moral nalozit nas certificate na android napravo, ampak to se ne splaca, ker je emulator in je bolj smotan.
@@ -106,11 +106,15 @@ class ApiController {
                 return;
             }
 
+
+
             // Attempt login  
             $result = $this->userModel->login($email, $password, $role);
 
             if ($result['success']) {
 
+                // Change is_active to boolean
+                $result['user']['is_active'] = $result['user']['is_active'] == 1;
 
                 // Format response  
                 $response = [
@@ -133,6 +137,109 @@ class ApiController {
             ApiResponse::error('Internal server error', 500);
         }
     }
+
+    public function getOrderHistory($params) {
+
+        // NOTE: enforceHTTPS() -To bi moral klicat, ampak potem, bi moral nalozit nas certificate na android napravo, ampak to se ne splaca, ker je emulator in je bolj smotan.
+        // example: http://localhost:8000/?controller=api&action=getOrderHistory&userId=3
+
+        try {
+
+            $userId = $params["userId"];
+            if (!isset($userId)) {
+                ApiResponse::error('Invalid user ID', 500);
+            }
+
+            $orders = $this->orderModel->getByUser($userId);
+
+            // Format response  
+            $response = [
+                "orders" => $orders
+            ];
+
+            ApiResponse::send($response);
+        } catch (Exception $e) {
+            error_log("API Error: " . $e->getMessage());
+            ApiResponse::error('Internal server error', 500);
+        }
+    }
+
+    public function placeOrder() {
+
+        // NOTE: enforceHTTPS() -To bi moral klicat, ampak potem, bi moral nalozit nas certificate na android napravo, ampak to se ne splaca, ker je emulator in je bolj smotan.
+        // NOTE: We would also need more checks because the api can be called by anyone right now, to prevent malicious inputs
+        // example: http://localhost:8000/?controller=api&action=placeOrder$
+
+
+
+        $jsonInput = file_get_contents('php://input');
+        $data = json_decode($jsonInput, true);
+        
+        
+
+        try {
+
+            $userId = $data["user_id"];
+            if (!isset($userId)) {
+                return ApiResponse::error('Invalid user ID', 500);
+            }
+
+
+
+            $requiredFields = ['shipping_address', 'postal_code', 'city', 'phone'];
+            foreach ($requiredFields as $field) {
+                if (empty($data[$field])) {
+                    return ApiResponse::error('Invalid shipping information fields', 500);
+                }
+            }
+
+
+
+            $shipping_info = [
+                'shipping_address' => cleanInput($data['shipping_address']),
+                'postal_code' => cleanInput($data['postal_code']),
+                'city' => cleanInput($data["city"]),
+                'phone' => cleanInput($data["phone"]),
+                'notes' => cleanInput($data["notes"]) ?? null
+            ];
+
+            $cartItems = $data["cart_items"];
+            // TODO: validate_cart_items() - check for malformed/improper input
+            if (empty($cartItems)) {
+                return ApiResponse::error('Invalid Cart Items', 500);
+            }
+
+            $total = 0;
+            foreach ($cartItems as $item) {
+                $total += $item['price'] * $item['quantity'];
+            }
+
+           
+
+            $orderId = $this->orderModel->create(
+                    $userId,
+                    $cartItems,
+                    $total,
+                    $shipping_info
+            );
+
+            // Format response
+            $response = [
+                "order_id" => $orderId
+            ];
+            ApiResponse::send($response);
+        } catch (Exception $ex) {
+
+            // Format response  
+            $response = [
+                "orderId" => $ex->getMessage()
+            ];
+            ApiResponse::send($response);
+
+            error_log("API Error: " . $ex->getMessage());
+            ApiResponse::error('Internal server error', 500);
+        }
+    }
 }
 
 class ApiResponse {
@@ -140,6 +247,7 @@ class ApiResponse {
     public static function send($data, $statusCode = 200) {
         header('Content-Type: application/json');
         http_response_code($statusCode);
+
         echo json_encode([
             'status' => $statusCode >= 200 && $statusCode < 300 ? 'success' : 'error',
             'data' => $data
