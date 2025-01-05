@@ -135,6 +135,18 @@ INSERT INTO products (name, description, price) VALUES
 ('Headphones', 'Wireless noise-cancelling headphones', 199.99),
 ('Tablet', '10-inch tablet with retina display', 399.99),
 ('Smartwatch', 'Fitness tracking smartwatch', 299.99);
+('Mug', 'A fine ceramic mug', 12.00);
+
+
+INSERT INTO product_images (product_id, file_name, file_path, is_primary)   
+VALUES   
+    (1, 'laptop.png', '/uploads/products/laptop.png', TRUE),  
+    (2, 'smartphone.png', '/uploads/products/smartphone.png', TRUE),  
+    (3, 'headphones.png', '/uploads/products/headphones.png', TRUE),  
+    (4, 'tablet.png', '/uploads/products/tablet.png', TRUE),  
+    (5, 'smartwatch.png', '/uploads/products/smartwatch.png', TRUE),  
+    (6, 'mug.png', '/uploads/products/mug.png', TRUE);
+
 
 -- Create indexes for better performance
 CREATE INDEX idx_users_email ON users(email);
